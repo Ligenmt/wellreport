@@ -1,7 +1,5 @@
 <template>
     <div>
-        {{type2}}
-        {{table.type}}
         <el-select v-model="value"
                    @change="changeValue"
         >
@@ -41,7 +39,6 @@
             };
         },
         mounted() {
-            console.log("type2", this.type2)
             this.type = this.table.type
             for (let i=0; i<this.allHeadArray.length; i++) {
                 let ha = this.allHeadArray[i]
@@ -66,6 +63,9 @@
                     if (ha.type === val) {
                         this.headArray = ha.array
                         this.value = ''
+                        if (this.dataKey < this.headArray.length) {
+                            this.value = this.headArray[this.dataKey].value
+                        }
                         break
                     }
                 }
