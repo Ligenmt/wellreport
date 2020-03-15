@@ -12,8 +12,10 @@
             <el-button style="margin-left: 10px;" size="small" type="success" @click="handleUpload">上传到服务器</el-button>
         </el-upload>
 
+        <el-button @click="handleSubmit">提交</el-button>
+
         <div v-for="(table, index) in tableArray" :key="index">
-            <el-select v-model="table.type" @change="changeType" v-if="index <= 2">
+            <el-select v-model="table.type" clearable @change="changeType(table)">
                 <el-option
                         v-for="item in allTypeOptions"
                         :key="item.value"
@@ -23,8 +25,9 @@
             </el-select>
             <el-table
                     border
+                    empty-text="解析表格数据"
                     highlight-current-row
-                    @current-change="handleCurrentChange" v-if="index <= 2">
+                    @current-change="handleCurrentChange">
                 <el-table-column
                         type="index"
                         width="50">
@@ -32,9 +35,12 @@
                 <el-table-column :prop="key" v-for="(item, key) in table.head" :key="key" >
                     <template style="height:20px" slot="header">
                         <table-head-select
-                            :headArray="table.targetHeadOptions"
-                            :type="table.type"
+                            :allHeadArray="allHeadArray"
+                            :type2="table.type"
                             :table="table"
+                            :dataIndex="index"
+                            :dataKey="key"
+                            @change="updateColumn"
                         ></table-head-select>
                         <!--<el-select v-model="value"-->
                                    <!--@change="updateFrist($event, index, key)"-->
@@ -54,7 +60,6 @@
                     border
                     highlight-current-row
                     :data="table.data"
-                    v-if="index <= 2"
             >
                 <el-table-column
                         type="index"
@@ -85,36 +90,8 @@
                 tableArray: [],
                 updateTable: null,
                 allHeadArray: [],
-                targetHead: [{
-                    0: '',
-                    1: '',
-                    2: '',
-                    3: '',
-                    4: '',
-                }],
-                options: [{
-                    value: '开钻次序',
-                    label: '开钻次序'
-                }, {
-                    value: '井深',
-                    label: '井深'
-                }, {
-                    value: '钻头尺寸',
-                    label: '钻头尺寸'
-                }, {
-                    value: '套管尺寸',
-                    label: '套管尺寸'
-                }, {
-                    value: '下入层位',
-                    label: '下入层位'
-                }, {
-                    value: '套管下深',
-                    label: '套管下深'
-                }, {
-                    value: '水泥返高',
-                    label: '水泥返高'
-                }],
                 allTypeOptions: [],
+                targetTypeArray: [],
             }
         },
         methods: {
@@ -140,35 +117,32 @@
                 uploadFile(formData).then(res=>{
                     // console.log(res.data)
                     this.uploading = false
-                    this.tableArray = res.data.result.parsedTableData
                     this.allHeadArray = res.data.result.allHeadArray
                     this.allTypeOptions = res.data.result.allTypeArray
+                    this.tableArray = res.data.result.parsedTableData
+                    // console.log(targetTypeArray)
                 }).catch(err=>{
                     console.log(err)
                     this.uploading = false
                 })
             },
 
-            updateFrist(event, index, key) {
-                console.log(event, index, key)
-                // console.log(this.targetHead)
-                // this.$set(this.tableArray[index]['targetHead'], key, event)
-                // console.log(this.tableArray[index]['targetHead'])
-                // this.updateTable = this.tableArray[index]['targetHead']
-                // console.log(this.updateTable)
-                // let tmp = this.targetHead
-                // this.targetHead = null
-                // this.$nextTick(()=>{
-                //     this.targetHead = tmp
-                // })
+            updateColumn(data) {
+                this.tableArray[data.index]['targetHead'][data.key] = data.value
+                console.log(this.tableArray[data.index]['targetHead'])
             },
 
             handleCurrentChange(value) {
                 console.log(value)
             },
 
-            changeType(val) {
-               console.log(val)
+            changeType(table) {
+               console.log(table.type)
+            },
+
+            handleSubmit() {
+                console.log("handleSubmit")
+                console.log(this.tableArray)
             }
         },
     }
