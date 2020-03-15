@@ -9,9 +9,12 @@
                 :file-list="fileList"
                 :auto-upload="false">
             <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" @click="handleUpload">上传到服务器</el-button>
+            <el-button style="margin-left: 10px;" size="small" type="success"
+                       @click="handleUpload"
+                       v-loading.fullscreen.lock="fullscreenLoading"
+            >上传到服务器</el-button>
         </el-upload>
-        <el-button @click="handleSubmit">提交</el-button>
+        <!--<el-button @click="handleSubmit">提交</el-button>-->
 
         <div v-for="(table, index) in tableArray" :key="index" style="margin-top: 40px;">
             <span>表格{{index+1}}</span>
@@ -78,6 +81,7 @@
         components: {TableHeadSelect},
         data() {
             return {
+                fullscreenLoading: false,
                 fileList: [],
                 file: null,
                 value: '',
@@ -107,19 +111,19 @@
             handleUpload() {
                 const formData = new FormData()
                 formData.append('file', this.file.raw)
-                this.uploading = true
+                this.fullscreenLoading = true
 
                 // You can use any AJAX library you like
                 uploadFile(formData).then(res=>{
                     // console.log(res.data)
-                    this.uploading = false
                     this.allHeadArray = res.data.result.allHeadArray
                     this.allTypeOptions = res.data.result.allTypeArray
                     this.tableArray = res.data.result.parsedTableData
                     // console.log(targetTypeArray)
+                    this.fullscreenLoading = false
                 }).catch(err=>{
                     console.log(err)
-                    this.uploading = false
+                    this.fullscreenLoading = false
                 })
             },
 
